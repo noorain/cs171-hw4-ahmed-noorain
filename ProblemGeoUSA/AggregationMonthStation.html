@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script type="text/javascript" src="../jquery-1.11.0.min.js"></script>
+<script src="../libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+var stationListings = {};
+
+    d3.json("../data/allData2003_2004.json",function(error,data){
+        console.log(data);
+        var timeParser = d3.time.format("%b %-d, %Y %X %p");
+        var onlytimeParser = d3.time.format("%H");
+        var count = 0; 
+        for (var key in data) {
+        //console.log("Key", key)
+        var obj = data[key];
+        var time_array = []
+        for (var prop in obj) {
+          //console.log(obj[prop].value)
+          var tvalue  = onlytimeParser(timeParser.parse((obj[prop].date)))
+          //console.log(tvalue)
+          if(!time_array[tvalue])
+            time_array[tvalue] = 0; 
+            time_array[tvalue] = time_array[tvalue] + obj[prop].value
+          }
+        var hourly_obj = {}
+        //console.log("time_array:", time_array)
+        var sum = 0; 
+        for(t in time_array){
+          console.log("Timearray:", t,time_array[t])
+          sum = sum + time_array[t]
+          hourly_obj[t] = time_array[t]
+        }
+        //console.log("hourly_obj", hourly_obj)
+        var station_info= {"sum": sum, "hourly": hourly_obj}
+        //console.log(station_info)
+        stationListings[key] = station_info
+        count++;
+        };	// add your source code
+
+console.log(stationListings)
+
+var sitePersonel = {};
+var employees = []
+sitePersonel.employees = employees;
+console.log(sitePersonel);
+var firstName = "John";
+var lastName = "Smith";
+var employee = {
+    "firstName": firstName,
+    "lastName": lastName 
+}
+sitePersonel.employees.push(employee);
+console.log(sitePersonel);
+var manager = "Jane Doe";
+sitePersonel.employees[0].manager = manager;
+console.log(sitePersonel);
+console.log(JSON.stringify(sitePersonel));
+
+saveToFile(stationListings,"reducedMonthStationHour2003_2004.json")
+
+
+
+    })
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+</script>
+
+
+</body>
+</html>

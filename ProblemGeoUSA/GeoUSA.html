@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+
+
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script> 
+    <script type="text/javascript" src="jquery.tipsy.js"></script>
+    <link href="tipsy.css" rel="stylesheet" type="text/css" />
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        
+<style type="text/css">
+    svg{
+        background: #eeeeee;
+    }
+
+
+
+    .active {
+  fill: orange;
+}
+
+
+    .country{
+        fill: #dffaff;
+        stroke:  steelblue;
+    }
+
+    text{
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 15pt;
+        /*font-weight: lighter;*/
+    }
+
+    .axis text {
+        font: 10px sans-serif;
+    }
+
+    .axis line,
+    .axis path {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .station{
+        fill:lightgrey;
+        opacity: .7;
+    }
+    .station.hasData{
+        fill:blue;
+        opacity: 1;
+    }
+    .hourLine{
+        fill:none;
+        stroke:steelblue;
+
+    }
+    .brush .extent{
+        fill:gray;
+        opacity: .3;
+    }
+rect {
+        fill: teal;
+        fill-opacity: .8;
+    }
+
+
+</style>
+
+<table class="chart">
+    <tr><td><div id="vis"></div></td><td>
+        <div id="mbars" class="btn-group pull-right">
+                
+                <ul class="dropdown-menu" role="menu">
+                    <li><a class="m" value="2014-02-19" href="#">2014-02-19</a></li>
+                    <li><a class="m" value="2014-02-20" href="#">2014-02-20</a></li>
+                    <li><a class="m" value="2014-02-21" href="#">2014-02-21</a></li>
+                    <li><a class="m" value="2014-02-22" href="#">2014-02-22</a></li>
+                    <li><a class="m" value="2014-02-23" href="#">2014-02-23</a></li>
+                </ul>
+            </div>
+        <div id="mbars"></td></tr>
+</table>
+
+
+<script src="GeoUSA.js"></script>
+
+</body>
+</html>
