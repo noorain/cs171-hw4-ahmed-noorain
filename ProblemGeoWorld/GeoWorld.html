@@ -12,23 +12,34 @@
 <script type="text/javascript" src="../libs/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="../libs/colorbrewer.js"></script>
 <script type="text/javascript" src="jquery.tipsy.js"></script>
-
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+      
 
 
 <style type="text/css">
+.ntext{
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 25pt;
+        font-weight: bold;
+    }
+
+
     svg{
         background: lightblue;
     }
+
 
     .country{
         fill: none;
         stroke:  steelblue;
     }
-    text{
+    
+    .ntext{
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-size: 9pt;
+        font-size: 100pt;
         font-weight: bold;
     }
+    
 
     table{
         border:none;
@@ -43,19 +54,32 @@
   shape-rendering: crispEdges;
 }
 
+.ntext{
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 100pt;
+        font-weight: bold;
+    }
+
 
 </style>
 
 
 <table>
     <tr>
-        <td><div id="vis"></div></td><td><div id="textLabel"></div>
+        <td><div id="vis"></div>
+       
+
+</td>
+
+        <td><div id="textLabel"></div>
 <div id="mbars">
+
 </td></tr>
     </td>
     </tr>
 </table>
-<div id="selector"></div><div id="selectorYear"></div>
+ <div id="selector" width="350"></div>
+        <div id="selectorYear"></div>
 
 
 

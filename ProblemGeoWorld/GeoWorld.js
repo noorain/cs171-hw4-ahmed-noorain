@@ -10,7 +10,7 @@ var height = 700 - margin.bottom - margin.top;
 
 var color = d3.scale.linear()
     //.range(["hsl(62,100%,90%)", "hsl(228,30%,20%)"])
-    .range(["#ffffcc","#c2e699","#78c679"])
+    .range(["#ffffcc","#c2e699","#78c679","#31a354","#006837"])
     .interpolate(d3.interpolateHcl);
 
 
@@ -43,7 +43,7 @@ var g = svg.append("g")
 
 var detailVis = d3.select("#detailVis").append("svg").attr({
     width:350,
-    height:200
+    height:100
 })
 
 var ng = detailVis.append("g")
@@ -80,91 +80,47 @@ function findcode(icode){
         return mapping[i].CODE2
 }
 
-            var mapped_value_date = []
+var mapped_value_date = []
+var value_ob = []
 
 function runAQueryOn(error, indicators, data) {
+    var value_ob = []
     var sel_year = $("#selectorYear option:selected").text();
     var sel_metric = $("#selector option:selected").val()
-    console.log("sel_year/sel_metric", sel_year, sel_metric)
+//    console.log("sel_year/sel_metric", sel_year, sel_metric)
     $.ajax({
        url: "http://api.worldbank.org/countries/all/indicators/" + sel_metric + "?per_page=2500&format=jsonP&prefix=Getdata&date="
-         + sel_year, //do something here
-          //url:"http://api.worldbank.org/countries/all/indicators/SH.TBS.INCD?per_page=250&format=jsonP&prefix=Getdata&date=2012",
-//        url: "http://api.worldbank.org/countries/all/indicators/SH.TBS.DTEC.ZS?format=jsonP&prefix=Getdata&date=2012",
+         + sel_year, 
         jsonpCallback:'getdata',
         dataType:'jsonp',
         success: function (data, status){
-           // console.log("Data from API:", data[1])
             value_data = data[1]
             var value_only = []
-            var value_ob = []
             for(a in value_data){
-                //console.log("A:", data[1][a].country.id)
                 if(+data[1][a].value != 0 )
                 value_only.push(+data[1][a].value)
-            mapped_value_date[data[1][a].country.id] = +data[1][a].value
-            var map_info= {"date": data[1][a].country.id, "value": +data[1][a].value}
-            
-            //mapped_value_object = {[data[1][a].country.id] = +data[1][a].value
+                mapped_value_date[data[1][a].country.id] = +data[1][a].value
+                if(+data[1][a].value > 0){
+                    var map_info= {"State": data[1][a].country.id, "Rate": +data[1][a].value}
+                    value_ob.push(map_info)
+                }
             }
-            console.log("MIN:", d3.min(value_only))
-          console.log("MAX:", d3.max(value_only))
-             var q = d3.scale.quantize().domain([d3.min(value_only), d3.max(value_only)]).range([1,2,3,4,5,6,7,8,9,10,11]);
-                
-            color.domain([1,2,3,4,5,6,7,8,9,10]);
-        var x = d3.scale.linear()
-            .domain([0, 390])
-            .range([0, 240]);
-
-    var xAxis = d3.svg.axis().scale(x)
-
-    .orient("bottom")
-    .tickSize(13)
-    .tickValues(color.domain());
-
-    g.selectAll("rect")
-    .data(color.range().map(function(d, i) {
-      return {
-        x0: i ? x(color.domain()[i - 1]) : x.range()[0],
-        x1: i < color.domain().length ? x(color.domain()[i]) : x.range()[1],
-        z: d
-      };
-    }))
-    .enter().append("rect")
-    .attr("height", 25)
-    .attr("x", function(d,i) { return d.x0; })
-    .attr("width", function(d) { return d.x1 - d.x0; })
-    .style("fill", function(d) { return d.z; });
-
-    g.call(xAxis)
-    .append("text")
-    .attr("class", "caption")
-    .attr("y", 400-6)
-    .text("Population per square mile");
-
-    console.log(" console.log(mapped_value_date):"  , mapped_value_date)
-console.log("fdata.features:", fdata.features)
+            createDetailVis(value_ob);
+            var q = d3.scale.quantize().domain([d3.min(value_only), d3.max(value_only)]).range([1,2,3,4,5]);
             svg.append("g")
                 .attr("id", "states")
                 .selectAll("path")
                 .data(fdata.features)
                 .enter().append("path")
                 .style("fill", function(d,i) { 
-                
-                    /*console.log("D.id:", d.id)
-                    console.log("findcode(d.id)", findcode(d.id));
-                    console.log("q(mapped_value_date[findcode(d.id)]))", q(mapped_value_date[findcode(d.id)]));
-                    console.log("mapped_value_date[findcode(d.id)]:", mapped_value_date[findcode(d.id)]); 
-                    */
-                    if(q(mapped_value_date[findcode(d.id)]) > 0)
+                if(q(mapped_value_date[findcode(d.id)]) > 0)
                     return color(q(mapped_value_date[findcode(d.id)]));
                 else return "grey"
                      })
 
                 .attr("d", path)
                     }
-    });
-    createDetailVis(mapped_value_date)
+                });
 }
 
 
@@ -172,11 +128,7 @@ console.log("fdata.features:", fdata.features)
 var initVis = function(error, indicators, data){
     d3.csv("../data/mapping.csv", function(error,mapdata){
     mapping = mapdata
-
-    
-
     fdata = data;
-
     var dropDown = d3.selectAll("#selector").append("select")
     var options = dropDown.selectAll("option")
             .data(indicators)
@@ -195,9 +147,6 @@ var initVis = function(error, indicators, data){
             .text(function (d,i) { 
                 return d; })
             .attr("value", function (d) { return d; })
-    //$('#selectorYear').find('option:eq(1)').attr('selected', true);
-    //$('#selector').find('option:eq(1)').attr('selected', true);
-
     $('svg path').tipsy({ 
         gravity: 'w', 
         html: true, 
@@ -215,95 +164,132 @@ queue()
     .defer(d3.json,"../data/world_data.json")
     .await(initVis);
 
-
-
-
 var changePro = function(d,i){
     path= d3.geo.path().projection(projectionMethods[0].method);
     svg.selectAll(".country").transition().duration(750).attr("d",path);
     runAQueryOn("1") 
-   // createDetailVis()
 };
 
 d3.select("body").append("button").text("Show").on({
     "click":changePro
 })
 
-
-
-
 // ALL THESE FUNCTIONS are just a RECOMMENDATION !!!!
 var createDetailVis = function(input){
-
-    d3.selectAll("#mbars").select("svg")
-       .remove();
-    var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
- 
-    var y = d3.scale.linear().range([height, 0]);
-
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom")
-        .tickFormat(function(d) { return d + ":00" });
- 
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .ticks(20);
+    d3.selectAll("#mbars").select("svg").remove();
+    var xScale = d3.scale.linear().range([0, width]);
+    var yScale = d3.scale.ordinal().rangeRoundBands([0, height], .8, 0);
+    var bar_height = 15;
+    var state = function(d) { return d.State; };
+    var ratev = function(d) { return d.Rate; };
     var svg = d3.select("#mbars").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", 
-              "translate(" + margin.left + "," + margin.top + ")");
- 
-    d3.csv("bar-data.csv", function(error, data) {
-        data.forEach(function(d) {
-            d.date = d.date;
-            d.value = +d.value;
-        });
-    console.log("Compare mapped_value_date", input)
-    console.log("Compare bardata", data)
-    x.domain(data.map(function(d) { return d.date; }));
-    y.domain([0, d3.max(data, function(d) { return d.value; })]);
- 
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
-        .selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", "-.55em")
-        .attr("transform", "rotate(-90)" );
- 
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Values");
+      .attr("width", width+margin.left+margin.right)
+      .attr("height", height+margin.top+margin.bottom);
 
-      svg.append("g")
-    .append("text")
-          .attr("y", 6)
-          .attr("x", 400)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Summed Hourly Value");
- 
-    svg.selectAll("bar")
+    var g = svg.append("g")
+      .attr("transform", "translate("+(margin.left)+","+margin.top+")");
+    g.append("text")
+    .attr("class", "ncaption")
+    .attr("y", 0)
+    .text("Metric for TOP 40 Countries");
+
+  
+      data = input
+      var max = d3.max(data, function(d) { return d.Rate; } );
+      var min = 0; // d3.min(data, function(d) { return d.Rate; } );;
+
+
+    sortStatedesc = function (a, b) {
+      return d3.ascending(a.State, b.State);
+    }
+
+    sortRatesdesc = function(a, b) {
+      if(b.Rate-a.Rate != 0)
+        return b.Rate - a.Rate;
+      else
+        return d3.descending(a.State, b.State);
+    }
+
+    sortStateasc = function (a, b) {
+      return d3.descending(a.State, b.State);
+    }
+
+    sortRatesasc = function(a, b) {
+      if(a.Rate-b.Rate != 0)
+        return  a.Rate - b.Rate;
+      else
+        return d3.descending(a.State, b.State);
+    }
+
+
+var sinput = []
+var ninput = input.sort(sortRatesdesc)
+ for ( i in ninput)
+ {
+    //console.log("I:", i)
+    if( i < 40)
+    sinput.push(ninput[i])
+ }
+    data = sinput
+    var color = d3.scale.linear()
+    .domain(
+      [d3.min(data, function(d) { return d.Rate }), 
+      d3.max(data, function(d) { return d.Rate })])
+    .interpolate(d3.interpolateRgb)
+    .range(["#31a354","#006837"])
+//    .range(["orangered", "silver"]);
+
+
+      xScale.domain([min, max]);
+      yScale.domain(data.map(state));
+
+      var groups = g.append("g")
+        .selectAll("g")
         .data(data)
-        .enter().append("rect")
-        .style("fill", "green")
-        .attr("x", function(d) { return x(d.date); })
-        .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.value); })
-        .attr("height", function(d) { return height - y(d.value); });
- 
-    });
+        .enter()
+        .append("g")
+        .attr("transform", function(d, i) { return "translate(0, " + yScale(d.State) +")"; })
+        
+        // STATE TEXT
+      groups.append("text")
+        .attr("x", function(d) { return  -20; })
+        .attr("y", function(d) { return bar_height/2; })
+        .text(function(d) { return d.State; })
+        .attr("text-anchor","end")
+
+      groups.append("text")
+        .attr("x", function(d,i) { return  xScale(d.Rate); })
+        .attr("y", function(d) { return bar_height/2; })
+        .text(function(d) { return d.Rate; })
+        //.attr("text-anchor","")
+        .attr("font-family", "sans-serif") 
+        .attr("font-size", "11px")
+        .attr("dy",".55em")
+        //.attr("fill", "red");
+      var bars = groups
+        .append("rect")
+        .attr("width", function(d) { return xScale(d.Rate); })
+        .attr("height", bar_height)
+        .style("fill", function(d, i) { return color(d.Rate);})
+
+    var stateclicked = 0; 
+    var rateclicked = 0; 
+
+    // ON LOAD: 
+    groups.sort(sortRatesdesc)
+    yScale.domain(data.map(ratev));
+    groups
+        .transition()
+        .duration(750)
+        .delay(function(d, i) { return i * 10; })
+        .attr("id",function(d, i) { return i; })
+        .attr("transform", function(d, i) {  
+          //console.log(yScale(d.Rate),yScale(),d,i); 
+          return "translate("+ 0 +", "+ i*16 +")";
+        })
+        .selectAll("rect").style("fill", function(d, i) {  return color(d.Rate);})
+      
+
+   
 }
 

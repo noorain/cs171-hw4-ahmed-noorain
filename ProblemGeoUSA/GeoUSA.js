@@ -104,7 +104,7 @@ function loadStations() {
          .on("mouseout", function(d) { d3.selectAll("#mbars").select("svg")
        .remove();})
 
-      $('svg circle').tipsy({ 
+     /* $('svg circle').tipsy({ 
         gravity: 'w', 
         html: true, 
         title: function() {
@@ -119,7 +119,7 @@ function loadStations() {
         return 'Station USAF: <span style="color:' + c + '">' + d.name +  '</span>'; 
         }
       });
-
+*/
       //console.log("Stats in loadStations:", stats[690150][0].sum)
 //createDetailVis(722515)
 
